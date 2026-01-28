@@ -101,18 +101,17 @@
 
   <div id="versionPanel">v2.2.1</div> 
 
-  <div id="tutorialOverlay" onclick="handleOverlayClick(event)">
-    <div id="tutorialBox">
-      <span class="close-modal" onclick="closeTutorial()">×</span>
-      <div class="video-container">
-        <video id="tutorialVideo" controls playsinline preload="metadata">
-          <source src="videos/copy_D1A6D274-8E5F-4A80-B1B5-B1C85BBC90D2.mov" type="video/mov">
-          Your browser does not support the video tag.
-        </video>
-      </div>
-    </div>
-  </div>
-
+  <div class="video-container">
+  <video id="tutorialVideo" controls playsinline preload="metadata" poster="images/tutorial-placeholder.jpg">
+    <source src="videos/tutorial.mp4" type="video/mp4">
+    <source src="videos/copy_D1A6D274-8E5F-4A80-B1B5-B1C85BBC90D2.mov" type="video/quicktime">
+    
+    <p>Your browser does not support the video tag. 
+       <a href="videos/tutorial.mp4" style="color: #4CAF50;">Download video instead</a>.
+    </p>
+  </video>
+</div>
+  
   <script>
     let materialCount = 0;
 
