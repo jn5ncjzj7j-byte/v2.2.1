@@ -3,202 +3,228 @@
 <head>
   <meta charset="UTF-8"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-  <title id="pageTitle">เว็ป/แอปคำนวณต้นทุน</title> 
+  <title id="pageTitle">Cost Calculator Pro</title> 
 
   <style>
-    /* Base Styles */
-    body {font-family:'Segoe UI',sans-serif;margin:0;padding:20px;display:flex;justify-content:center;background:linear-gradient(to bottom right,#f0f4f8,#d9e2ec);color:#000;transition:background 0.4s ease, color 0.4s ease;}
-    body.dark{background:linear-gradient(to bottom right,#1e1e1e,#2c2c2c);color:#fff;}
-    
-    .container{width:95%;max-width:720px;background:#fff;padding:25px 30px;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.12); position: relative; transition: background 0.4s;}
-    body.dark .container{background:#2a2a2a;box-shadow:0 10px 30px rgba(0,0,0,0.6);}
-    
-    h2{text-align:center;margin-top:0;}
-    .language-select{text-align:right;margin-bottom:15px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;}
-    
+    :root {
+      --primary: #4CAF50;
+      --primary-hover: #45a049;
+      --bg-light: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      --bg-dark: linear-gradient(135deg, #1e1e1e 0%, #121212 100%);
+      --card-light: rgba(255, 255, 255, 0.9);
+      --card-dark: rgba(45, 45, 45, 0.9);
+      --shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0; padding: 20px; display: flex; justify-content: center;
+      min-height: 100vh; background: var(--bg-light); color: #333;
+      transition: background 0.8s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s;
+    }
+    body.dark { background: var(--bg-dark); color: #eee; }
+
+    .container {
+      width: 95%; max-width: 700px; padding: 30px;
+      background: var(--card-light); backdrop-filter: blur(15px);
+      border-radius: 28px; border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: var(--shadow); position: relative; 
+      transition: background 0.5s ease, transform 0.3s ease;
+    }
+    body.dark .container { background: var(--card-dark); border-color: rgba(255, 255, 255, 0.05); }
+
+    h2 { text-align: center; font-weight: 800; margin-bottom: 25px; letter-spacing: -0.5px; }
+
+    /* Header Buttons Positioned to the Right */
+    .header-controls {
+      display: flex; justify-content: flex-end; align-items: center;
+      gap: 12px; margin-bottom: 20px;
+    }
+
+    .lang-select-wrapper {
+      background: rgba(0,0,0,0.05); padding: 5px 10px; border-radius: 12px;
+      display: flex; align-items: center; transition: background 0.3s;
+    }
+    body.dark .lang-select-wrapper { background: rgba(255,255,255,0.1); }
+
+    select {
+      background: transparent; border: none; font-size: 14px; font-weight: 600;
+      cursor: pointer; outline: none; color: inherit;
+    }
+
     /* Section Styling & Extra Bold Arrows */
-    details{margin:15px 0;border-radius:12px;padding:12px;background:#f9fafc;box-shadow:0 2px 8px rgba(0,0,0,0.08); transition: background 0.4s;}
-    body.dark details{background:#333;color:#fff;}
-    
-    details summary {
-      font-weight:600;font-size:18px;cursor:pointer;outline:none;
-      list-style: none; display: flex; align-items: center;
+    details {
+      margin-bottom: 15px; border-radius: 18px; overflow: hidden;
+      background: rgba(0,0,0,0.03); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    details summary::-webkit-details-marker { display: none; }
-    
+    body.dark details { background: rgba(255,255,255,0.04); }
+    details[open] { background: rgba(0,0,0,0.01); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+
+    summary {
+      padding: 18px; list-style: none; cursor: pointer; display: flex; align-items: center;
+      font-weight: 700; font-size: 1.15rem; outline: none;
+    }
+    summary::-webkit-details-marker { display: none; }
+
     .arrow-icon {
-      display: inline-block;
-      font-size: 28px; 
-      color: #4CAF50;
-      margin-right: 15px;
-      width: 30px;
-      text-align: center;
-      transition: transform 0.2s;
-      text-shadow: 1px 0px 0px #4CAF50, -1px 0px 0px #4CAF50, 0px 1px 0px #4CAF50, 0px -1px 0px #4CAF50;
-      font-family: Arial, sans-serif;
+      font-size: 26px; color: var(--primary); margin-right: 18px;
+      transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      text-shadow: 1px 0px 0px var(--primary), -1px 0px 0px var(--primary), 0px 1px 0px var(--primary), 0px -1px 0px var(--primary);
     }
-    details[open] .arrow-icon { transform: rotate(90deg); }
+    details[open] .arrow-icon { transform: rotate(90deg) scale(1.1); }
 
-    /* Inputs */
-    .input-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center;}
-    .input-row input,.input-row select{flex:1;padding:10px 12px;border:1px solid #ccd6dd;border-radius:10px;font-size:14px;background:#fff;}
-    body.dark .input-row input,body.dark .input-row select{background:#444;color:#fff;border-color:#666;}
-    
+    /* Inputs & UI Elements */
+    .input-row { 
+      display: flex; flex-wrap: wrap; gap: 12px; padding: 0 18px 18px;
+      animation: fadeIn 0.5s ease forwards;
+    }
+    input {
+      flex: 1; padding: 14px 18px; border: 2px solid transparent; border-radius: 14px;
+      background: rgba(255,255,255,0.9); font-size: 15px; outline: none;
+      transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    }
+    body.dark input { background: #3d3d3d; color: white; }
+    input:focus { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(76, 175, 80, 0.15); }
+
     /* Buttons */
-    button{padding:10px 18px;margin:5px 5px 5px 0;cursor:pointer;border:none;border-radius:12px;background:#4CAF50;color:white;font-weight:600;font-size:15px; transition: 0.2s;}
-    button:hover{background:#45a049;}
-    button.delete{background:#e74c3c;}
-    button.delete:hover{background:#c0392b;}
-    
-    /* Result Box */
-    #result{margin-top:20px;padding:20px;border-radius:16px;background:#e8f5e9;border:1px solid #a5d6a7;font-weight:500;line-height:1.9; transition: 0.4s;}
-    body.dark #result{background:#3a3a3a;border:1px solid #666;color:#fff;}
-    
-    /* Floating Version & Tutorial */
-    #versionPanel{position:fixed;bottom:10px;left:10px;padding:6px 10px;background:rgba(0,0,0,0.7);color:#fff;font-size:11px;border-radius:6px;z-index:9999;}
-    .tutorial-btn {
-      position: absolute; top: 15px; left: 15px; width: 42px; height: 42px; border-radius: 50%;
-      background: #4CAF50; color: white; font-size: 22px; font-weight: bold; border: none;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4); z-index: 100; animation: tutorial-pulse 2s infinite;
+    button {
+      padding: 12px 24px; border: none; border-radius: 15px; background: var(--primary);
+      color: white; font-weight: 700; cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: inline-flex; align-items: center; justify-content: center;
     }
-    @keyframes tutorial-pulse {
-      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
-      70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
-      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
-    }
+    button:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 10px 25px rgba(76, 175, 80, 0.3); }
+    button:active { transform: translateY(-1px) scale(0.97); }
 
-    /* Donate Button Right Down */
+    button.delete { background: #ff4757; padding: 10px; min-width: 45px; }
+    button.delete:hover { background: #ff6b81; box-shadow: 0 8px 20px rgba(255, 71, 87, 0.25); }
+
+    /* Result Area */
+    #result {
+      margin-top: 25px; padding: 25px; border-radius: 22px;
+      background: linear-gradient(145deg, #e8f5e9, #dcf0de); color: #2e7d32;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.02); transition: all 0.5s;
+    }
+    body.dark #result { background: linear-gradient(145deg, #2e2e2e, #252525); color: #81c784; }
+
+    /* Floating Items */
     .donate-btn {
-      position: fixed; bottom: 20px; right: 20px; padding: 12px 20px;
-      background: linear-gradient(45deg, #FFD700, #FFA500);
-      color: #000; font-weight: 800; border-radius: 30px;
-      text-decoration: none; box-shadow: 0 5px 15px rgba(255, 165, 0, 0.4);
-      z-index: 10000; display: flex; align-items: center; gap: 8px;
-      transition: 0.3s; font-size: 14px; border: 2px solid #fff;
+      position: fixed; bottom: 30px; right: 30px; padding: 15px 25px;
+      background: linear-gradient(45deg, #FFD700, #FFA500); color: #000;
+      font-weight: 800; border-radius: 50px; text-decoration: none;
+      box-shadow: 0 10px 30px rgba(255, 165, 0, 0.4); z-index: 1000;
+      display: flex; align-items: center; gap: 10px; border: 2px solid #fff;
+      animation: float 4s ease-in-out infinite; transition: 0.3s ease;
     }
-    .donate-btn:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(255, 165, 0, 0.6); }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+    .donate-btn:hover { transform: scale(1.1); box-shadow: 0 15px 40px rgba(255, 165, 0, 0.6); }
 
-    /* Modal Tutorial */
-    #tutorialOverlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10001; align-items:center; justify-content:center; padding:20px; }
-    #tutorialBox { background:#fff; width:100%; max-width:600px; border-radius:20px; overflow:hidden; position:relative; }
-    body.dark #tutorialBox { background:#2a2a2a; color: white; }
-    .close-modal { position:absolute; right:15px; top:10px; cursor:pointer; font-size:24px; z-index:10;}
-    .video-container { position:relative; padding-bottom:56.25%; height:0; background: #000; }
-    .video-container video { position:absolute; top:0; left:0; width:100%; height:100%; border:none; }
+    .tutorial-btn {
+      position: absolute; top: 20px; left: 20px; width: 45px; height: 45px;
+      border-radius: 50%; background: var(--primary); color: white; border: none;
+      font-size: 22px; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(76, 175, 80, 0.2);
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    #versionPanel { position: fixed; bottom: 15px; left: 20px; font-size: 11px; opacity: 0.4; pointer-events: none; }
   </style>
 </head>
-
 <body>
 
-  <div class="container"> 
+  <div class="container">
     <button class="tutorial-btn" onclick="openTutorial()">?</button>
+    
+    <div class="header-controls">
+      <div class="lang-select-wrapper">
+        <span>🌐</span>
+        <select id="langSelect" onchange="switchLang()">
+          <option value="th">ไทย</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+      <button id="themeBtn" onclick="toggleDarkMode()" style="font-size: 13px; padding: 8px 15px;">ตามระบบ</button>
+    </div>
 
-    <div class="language-select"> 
-      <select id="langSelect" onchange="switchLang()"> 
-        <option value="th">ไทย</option> 
-        <option value="en">English</option> 
-      </select> 
-      <button id="themeBtn" onclick="toggleDarkMode()">ตามระบบ</button> 
-    </div> 
+    <h2 id="title">Cost Calculator Pro</h2>
 
-    <h2 id="title">เว็ป/แอปคำนวณต้นทุน</h2> 
+    <details open>
+      <summary><span class="arrow-icon">➤</span><span id="labelMaterial">วัตถุดิบ</span></summary>
+      <div id="materials"></div>
+      <div style="padding: 0 18px 18px;">
+        <button onclick="addMaterial()" id="addBtn">＋ เพิ่มรายการ</button>
+      </div>
+    </details>
 
-    <details open> 
-      <summary><span class="arrow-icon">➤</span><span id="labelMaterial">วัตถุดิบ</span></summary> 
-      <div id="materials"></div> 
-      <button onclick="addMaterial()" id="addBtn">+ เพิ่มวัตถุดิบ</button> 
-    </details> 
+    <details>
+      <summary><span class="arrow-icon">➤</span><span id="labelLabor">ค่าแรง & ค่าใช้จ่าย</span></summary>
+      <div class="input-row">
+        <input type="text" id="workers" placeholder="จำนวนคน" oninput="calculate()">
+        <input type="text" id="wage" placeholder="ค่าแรง คน" oninput="calculate()">
+      </div>
+      <div class="input-row">
+        <input type="text" id="water" placeholder="ค่าน้ำ" oninput="calculate()">
+        <input type="text" id="electricity" placeholder="ค่าไฟ" oninput="calculate()">
+      </div>
+    </details>
 
-    <details> 
-      <summary><span class="arrow-icon">➤</span><span id="labelLabor">ค่าแรง &amp; ค่าใช้จ่าย</span></summary> 
-      <div class="input-row"> 
-        <input type="text" id="workers" placeholder="จำนวนคน" oninput="calculate()"> 
-        <input type="text" id="wage" placeholder="ค่าแรง คน" oninput="calculate()"> 
-      </div> 
-      <div class="input-row"> 
-        <input type="text" id="water" placeholder="ค่าน้ำ" oninput="calculate()"> 
-        <input type="text" id="electricity" placeholder="ค่าไฟ" oninput="calculate()"> 
-      </div> 
-    </details> 
+    <div style="display: flex; gap: 12px; margin-top: 20px;">
+      <button onclick="calculate()" id="calcBtn" style="flex: 2; font-size: 18px; background: #4CAF50;">คำนวณต้นทุน ↓</button>
+      <button onclick="resetAll()" id="resetBtn" style="flex: 1; background: #607d8b;">รีเซ็ต</button>
+    </div>
 
-    <div style="margin-top:15px;"> 
-      <button onclick="calculate()" id="calcBtn">คำนวณ ↓</button> 
-      <button onclick="resetAll()" id="resetBtn">รีเซ็ต</button> 
-    </div> 
-
-    <div id="result"></div> 
-  </div> 
+    <div id="result"></div>
+  </div>
 
   <a href="https://tmn.app.link/Y5OprkLlj0b" target="_blank" class="donate-btn">
-    <span>☕</span> <span id="donateText">Donate</span>
+    <span>💎</span><span id="donateText">สนับสนุน</span>
   </a>
 
-  <div id="versionPanel">V2.2.5</div> 
-
-  <div id="tutorialOverlay" onclick="handleOverlayClick(event)">
-    <div id="tutorialBox">
-      <span class="close-modal" onclick="closeTutorial()">×</span>
-      <div class="video-container">
-        <video id="tutorialVideo" controls playsinline>
-          <source src="videos/tutorial.mp4" type="video/mp4">
-        </video>
-      </div>
-    </div>
-  </div>
+  <div id="versionPanel">v2.4.1 • Ultra Smooth UI</div>
 
   <script>
     let materialCount = 0;
     const texts = {
       th: {
-        title: "เว็ป/แอปคำนวณต้นทุน", materials: "วัตถุดิบ", laborSection: "ค่าแรง & ค่าใช้จ่าย",
-        workers: "จำนวนคน", wage: "ค่าแรง คน", water: "ค่าน้ำ", electricity: "ค่าไฟ",
-        matName: "ชื่อวัตถุดิบ", matQty: "จำนวน", matCost: "ราคา หน่วย", matProfit: "กำไร หน่วย",
-        addMaterial: "+ เพิ่มวัตถุดิบ", deleteBtn: "ลบ", labor: "ค่าแรงรวม", other: "ค่าน้ำ + ค่าไฟ",
-        material: "วัตถุดิบรวม", total: "↓ ต้นทุนรวม", profitText: "กำไรรวม (+)", sale: "ราคาขาย สรุป",
-        calc: "คำนวณ ↓", reset: "รีเซ็ต", darkMode: "โหมดมืด", lightMode: "โหมดสว่าง", autoMode: "ตามระบบ",
-        symbol: "฿", symbolBefore: false, empty: "กรุณาใส่ข้อมูลเพื่อคำนวณ", donate: "สนับสนุน"
+        title: "คำนวณต้นทุน Pro", materials: "รายการวัตถุดิบ", laborSection: "ค่าแรงและโสหุ้ย",
+        workers: "จำนวนคน", wage: "ค่าแรงต่อคน", water: "ค่าน้ำ", electricity: "ค่าไฟ",
+        matName: "ชื่อวัตถุดิบ", matQty: "จำนวน", matCost: "ราคาทุน", matProfit: "กำไรต่อชิ้น",
+        addMaterial: "＋ เพิ่มรายการ", deleteBtn: "✕", labor: "ค่าแรงรวม", other: "น้ำ + ไฟ",
+        material: "ต้นทุนวัตถุดิบ", total: "ต้นทุนสุทธิ", profitText: "กำไรส่วนต่าง", sale: "ราคาขายแนะนำ",
+        calc: "คำนวณต้นทุน ↓", reset: "รีเซ็ต", darkMode: "🌙 มืด", lightMode: "☀️ สว่าง", autoMode: "🌓 ออโต้",
+        symbol: "฿", symbolBefore: false, empty: "ยินดีต้อนรับ! กรุณากรอกข้อมูล", donate: "สนับสนุน"
       },
       en: {
-        title: "Cost Calculator", materials: "Materials", laborSection: "Labor & Expenses",
-        workers: "Workers", wage: "Wage person", water: "Water bill", electricity: "Electricity bill",
-        matName: "Name", matQty: "Qty", matCost: "Cost Unit", matProfit: "Profit Unit",
-        addMaterial: "+ Add material", deleteBtn: "Del", labor: "Total Labor", other: "Water + Elec",
-        material: "Total Materials", total: "↓ Total Cost", profitText: "Total Profit (+)", sale: "Final Sale Price",
-        calc: "Calculate ↓", reset: "Reset", darkMode: "Dark Mode", lightMode: "Light Mode", autoMode: "Auto",
-        symbol: "$", symbolBefore: true, empty: "Please enter data", donate: "Donate"
+        title: "Cost Calculator Pro", materials: "Materials", laborSection: "Expenses",
+        workers: "Workers", wage: "Wage/Person", water: "Water", electricity: "Elec",
+        matName: "Name", matQty: "Qty", matCost: "Cost", matProfit: "Profit/Unit",
+        addMaterial: "＋ Add Item", deleteBtn: "✕", labor: "Total Labor", other: "Utilities",
+        material: "Materials", total: "Net Cost", profitText: "Total Profit", sale: "Selling Price",
+        calc: "Calculate ↓", reset: "Reset", darkMode: "🌙 Dark", lightMode: "☀️ Light", autoMode: "🌓 Auto",
+        symbol: "$", symbolBefore: true, empty: "Welcome! Fill data to start.", donate: "Donate"
       }
     };
 
     function parseSmartFloat(val) {
       if (!val) return 0;
-      const cleaned = val.toString().replace(/[^0-9.]/g, '');
-      return parseFloat(cleaned) || 0;
+      return parseFloat(val.toString().replace(/[^0-9.]/g, '')) || 0;
     }
 
-    // ฟังก์ชันเปลี่ยนธีม (Auto Detect No Refresh)
     function applyTheme() {
       const mode = localStorage.getItem("theme") || "auto";
       const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const lang = document.getElementById("langSelect").value;
-      const t = texts[lang];
-      
+      const t = texts[document.getElementById("langSelect").value];
       const shouldBeDark = mode === "dark" || (mode === "auto" && isSystemDark);
       document.body.classList.toggle("dark", shouldBeDark);
-      
       document.getElementById("themeBtn").textContent = mode === "dark" ? t.darkMode : (mode === "light" ? t.lightMode : t.autoMode);
     }
 
-    // ระบบตรวจจับการเปลี่ยนโหมดมืดของเครื่องทันที
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-      if (localStorage.getItem("theme") === "auto" || !localStorage.getItem("theme")) {
-        applyTheme();
-      }
+      if (localStorage.getItem("theme") === "auto") applyTheme();
     });
 
     function toggleDarkMode() {
       const current = localStorage.getItem("theme") || "auto";
-      let next = current === "auto" ? "dark" : (current === "dark" ? "light" : "auto");
+      const next = current === "auto" ? "dark" : (current === "dark" ? "light" : "auto");
       localStorage.setItem("theme", next);
       applyTheme();
     }
@@ -221,17 +247,12 @@
       document.getElementById("calcBtn").textContent = t.calc;
       document.getElementById("resetBtn").textContent = t.reset;
       document.getElementById("donateText").textContent = t.donate;
-      document.getElementById("workers").placeholder = t.workers;
-      document.getElementById("wage").placeholder = t.wage;
-      document.getElementById("water").placeholder = t.water;
-      document.getElementById("electricity").placeholder = t.electricity;
       
       document.querySelectorAll("#materials .input-row").forEach(row => {
         row.children[0].placeholder = t.matName;
         row.children[1].placeholder = t.matQty;
         row.children[2].placeholder = t.matCost;
         row.children[3].placeholder = t.matProfit;
-        if (row.children[4]) row.children[4].textContent = t.deleteBtn;
       });
       applyTheme();
       calculate();
@@ -248,13 +269,18 @@
         <input type="text" placeholder="${t.matQty}" value="${qty}" oninput="calculate()">
         <input type="text" placeholder="${t.matCost}" value="${cost}" oninput="calculate()">
         <input type="text" placeholder="${t.matProfit}" value="${profit}" oninput="calculate()">
-        <button class="delete" onclick="deleteMaterial(${materialCount})">${t.deleteBtn}</button>
+        <button class="delete" onclick="deleteMaterial(${materialCount})">✕</button>
       `;
       document.getElementById("materials").appendChild(div);
       saveData();
     }
 
-    function deleteMaterial(id) { document.getElementById("material-" + id)?.remove(); saveData(); calculate(); }
+    function deleteMaterial(id) {
+      const el = document.getElementById("material-" + id);
+      el.style.transform = "translateX(40px)";
+      el.style.opacity = "0";
+      setTimeout(() => { el.remove(); saveData(); calculate(); }, 300);
+    }
 
     function calculate() {
       const lang = document.getElementById("langSelect").value;
@@ -269,7 +295,7 @@
         const qtyVal = parseSmartFloat(row.children[1].value) || (row.children[1].value !== "" ? 1 : 0);
         const costVal = parseSmartFloat(row.children[2].value);
         const profVal = parseSmartFloat(row.children[3].value);
-        if (qtyVal > 0 || costVal > 0 || profVal > 0) hasData = true;
+        if (qtyVal > 0 || costVal > 0) hasData = true;
         matCostTotal += qtyVal * costVal;
         profTotal += qtyVal * profVal;
       });
@@ -281,16 +307,23 @@
 
       if (laborTotal > 0 || otherTotal > 0) hasData = true;
 
-      let lines = [];
-      if (laborTotal > 0) lines.push(`${t.labor}: <strong>${formatMoney(laborTotal)}</strong>`);
-      if (otherTotal > 0) lines.push(`${t.other}: <strong>${formatMoney(otherTotal)}</strong>`);
-      if (matCostTotal > 0) lines.push(`${t.material}: <strong>${formatMoney(matCostTotal)}</strong>`);
-      if (totalCost > 0) lines.push(`${t.total}: <strong>${formatMoney(totalCost)}</strong>`);
-      if (profTotal > 0) lines.push(`${t.profitText}: <strong>${formatMoney(profTotal)}</strong>`);
-
-      document.getElementById("result").innerHTML = hasData
-        ? lines.join("<br>") + `<br><br><strong style="font-size:1.4em;color:#4CAF50;">${t.sale}: ${formatMoney(finalPrice)}</strong>`
-        : `<span style="color:#999;">${t.empty}</span>`;
+      if (hasData) {
+        document.getElementById("result").innerHTML = `
+          <div style="display:grid; grid-template-columns: 1fr 1fr; row-gap:8px;">
+            <span>${t.labor}:</span> <strong>${formatMoney(laborTotal)}</strong>
+            <span>${t.other}:</span> <strong>${formatMoney(otherTotal)}</strong>
+            <span>${t.material}:</span> <strong>${formatMoney(matCostTotal)}</strong>
+            <span style="border-top:1px solid rgba(0,0,0,0.1); margin-top:5px; padding-top:5px;">${t.total}:</span> 
+            <strong style="border-top:1px solid rgba(0,0,0,0.1); margin-top:5px; padding-top:5px;">${formatMoney(totalCost)}</strong>
+          </div>
+          <div style="margin-top:20px; padding-top:15px; border-top:2px dashed rgba(0,0,0,0.1); text-align:center;">
+            <div style="font-size:0.9rem; opacity:0.7; margin-bottom:5px;">${t.sale}</div>
+            <div style="font-size:2.2rem; font-weight:800; color:var(--primary);">${formatMoney(finalPrice)}</div>
+          </div>
+        `;
+      } else {
+        document.getElementById("result").innerHTML = `<div style="text-align:center; opacity:0.5;">${t.empty}</div>`;
+      }
       saveData();
     }
 
@@ -304,11 +337,11 @@
       document.querySelectorAll("#materials .input-row").forEach(row => {
         data.materials.push({ name: row.children[0].value, qty: row.children[1].value, cost: row.children[2].value, profit: row.children[3].value });
       });
-      localStorage.setItem("calcData", JSON.stringify(data));
+      localStorage.setItem("calcDataProV2", JSON.stringify(data));
     }
 
     function loadData() {
-      const saved = localStorage.getItem("calcData");
+      const saved = localStorage.getItem("calcDataProV2");
       const lang = localStorage.getItem("lang") || "th";
       document.getElementById("langSelect").value = lang;
       if (!saved) { addMaterial(); switchLang(); return; }
@@ -319,16 +352,13 @@
       document.getElementById("electricity").value = data.electricity || "";
       document.getElementById("materials").innerHTML = "";
       data.materials.forEach(m => addMaterial(m.name, m.qty, m.cost, m.profit));
-      if (document.querySelectorAll("#materials .input-row").length === 0) addMaterial();
       switchLang();
     }
 
-    function resetAll() { if (confirm("ลบข้อมูลทั้งหมด? / Clear all?")) { localStorage.removeItem("calcData"); location.reload(); } }
-    function openTutorial() { document.getElementById("tutorialOverlay").style.display = "flex"; }
-    function closeTutorial() { document.getElementById("tutorialOverlay").style.display = "none"; document.getElementById("tutorialVideo").pause(); }
-    function handleOverlayClick(e) { if (e.target.id === "tutorialOverlay") closeTutorial(); }
+    function resetAll() { if (confirm("ล้างข้อมูลทั้งหมด?")) { localStorage.clear(); location.reload(); } }
+    function openTutorial() { alert("วิดีโอคู่มือจะเปิดที่นี่..."); } // ปรับตามต้องการ
 
-    window.onload = () => { loadData(); applyTheme(); };
+    window.onload = loadData;
   </script>
 </body>
 </html>
