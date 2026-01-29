@@ -57,7 +57,6 @@
       padding: 0 18px 12px; align-items: center;
     }
 
-    /* Styling for the new Row Number */
     .row-number {
       font-weight: bold;
       min-width: 25px;
@@ -75,7 +74,6 @@
 
     body.dark input { background: #3d3d3d; color: white; border-color: #444; }
     input:focus { border-color: var(--primary); background: #fff; }
-    body.dark input:focus { background: #444; }
 
     button { 
       padding: 12px 20px; border: none; border-radius: 15px; 
@@ -84,7 +82,15 @@
       display: flex; align-items: center; justify-content: center;
     }
     button:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3); }
-    button.delete { background: #ff4757; width: 40px; height: 40px; flex-shrink: 0; padding: 0; }
+    button.delete { background: #ff4757; width: 40px; height: 40px; flex-shrink: 0; padding: 0; border-radius: 10px; }
+
+    /* New Reset Button Style */
+    #resetBtn { 
+      padding: 8px 16px; 
+      font-size: 14px; 
+      background: var(--primary); /* Matching your green sketch */
+      opacity: 0.9;
+    }
 
     .tutorial-btn { position: absolute; top: 20px; left: 20px; width: 45px; height: 45px; border-radius: 50%; }
     .donate-btn { position: fixed; bottom: 30px; right: 30px; padding: 15px 25px; background: linear-gradient(45deg, #FFD700, #FFA500); color: #000; border-radius: 50px; text-decoration: none; z-index: 1000; animation: float 3s ease-in-out infinite; font-weight: bold;}
@@ -92,7 +98,8 @@
 
     details { margin-bottom: 15px; border-radius: 18px; background: rgba(0,0,0,0.03); overflow: hidden; }
     body.dark details { background: rgba(255,255,255,0.05); }
-    summary { padding: 18px; list-style: none; cursor: pointer; display: flex; align-items: center; font-weight: 700; }
+    summary { padding: 18px; list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; font-weight: 700; }
+    .summary-left { display: flex; align-items: center; }
     .arrow-icon { font-size: 20px; color: var(--primary); margin-right: 12px; transition: 0.4s; }
     details[open] .arrow-icon { transform: rotate(90deg); }
 
@@ -128,15 +135,24 @@
     <h2 id="title" style="text-align: center; margin-bottom: 25px;"></h2>
 
     <details open>
-      <summary><span class="arrow-icon">➤</span><span id="labelMaterial"></span></summary>
+      <summary>
+        <div class="summary-left">
+          <span class="arrow-icon">➤</span><span id="labelMaterial"></span>
+        </div>
+        <button onclick="resetAll()" id="resetBtn"></button>
+      </summary>
       <div id="materials"></div>
       <div style="padding: 10px 18px 18px;">
-        <button onclick="addMaterial()" id="addBtn"></button>
+        <button onclick="addMaterial()" id="addBtn" style="padding: 8px 16px; font-size: 14px;"></button>
       </div>
     </details>
 
     <details>
-      <summary><span class="arrow-icon">➤</span><span id="labelLabor"></span></summary>
+      <summary>
+        <div class="summary-left">
+          <span class="arrow-icon">➤</span><span id="labelLabor"></span>
+        </div>
+      </summary>
       <div class="input-row">
         <input type="number" id="workers" oninput="calculate()" placeholder="จำนวนคน">
         <input type="number" id="wage" oninput="calculate()" placeholder="ค่าแรงต่อคน">
@@ -148,8 +164,7 @@
     </details>
 
     <div style="display: flex; gap: 12px; margin-top: 20px;">
-      <button onclick="calculate()" id="calcBtn" style="flex: 2; font-size: 18px;"></button>
-      <button onclick="resetAll()" id="resetBtn" style="flex: 1; background: #607d8b;"></button>
+      <button onclick="calculate()" id="calcBtn" style="flex: 1; font-size: 18px;"></button>
     </div>
 
     <div id="result"></div>
@@ -211,10 +226,6 @@
       applyTheme();
     }
 
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-      if (localStorage.getItem("theme") === "auto") applyTheme();
-    });
-
     function switchLang() {
       const lang = document.getElementById("langSelect").value;
       const t = texts[lang];
@@ -229,9 +240,10 @@
       
       document.querySelectorAll("#materials .input-row").forEach(row => {
         row.querySelector(".mat-name-input").placeholder = t.matName;
-        row.querySelectorAll("input[type='number']")[0].placeholder = t.matQty;
-        row.querySelectorAll("input[type='number']")[1].placeholder = t.matCost;
-        row.querySelectorAll("input[type='number']")[2].placeholder = t.matProfit;
+        const nums = row.querySelectorAll("input[type='number']");
+        nums[0].placeholder = t.matQty;
+        nums[1].placeholder = t.matCost;
+        nums[2].placeholder = t.matProfit;
       });
 
       applyTheme();
@@ -331,7 +343,13 @@
 
     function openTutorial() { document.getElementById("tutorialModal").style.display = "flex"; }
     function closeTutorial() { document.getElementById("tutorialModal").style.display = "none"; }
-    function resetAll() { if(confirm("Clear all data?")) { localStorage.clear(); location.reload(); } }
+    
+    function resetAll() { 
+      if(confirm("ต้องการรีเซ็ตข้อมูลทั้งหมดหรือไม่? / Clear all data?")) { 
+        localStorage.clear(); 
+        location.reload(); 
+      } 
+    }
 
     window.onload = function() {
       loadData();
